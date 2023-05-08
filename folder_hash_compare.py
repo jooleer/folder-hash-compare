@@ -15,7 +15,7 @@ from multiprocessing.pool import ThreadPool
 parser = argparse.ArgumentParser(
                     prog='folder_hash_compare.py',
                     description='Compares the hashes of all files in 2 folders',
-                    epilog='Folder Hash Compare - https://')
+                    epilog='Folder Hash Compare - https://github.com/jooleer/folder-hash-compare')
 
 parser.add_argument('-p', '--primary', help='Primary folder, f.e. -p C:\\Folder1\\ or -p /home/user/folder1')
 parser.add_argument('-s', '--secondary', help='Secondary folder, f.e. -s D:\\Folder2\\ or -s /home/user/folder2')
