@@ -159,4 +159,8 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
+<<<<<<< HEAD
 .vs/
+=======
+.vs/
+>>>>>>> 6c02900a3cca560191d6dd4d5aceefec20a0eea9
