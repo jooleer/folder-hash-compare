@@ -115,8 +115,6 @@ def main():
     folder1_hashes = {}
     folder2_hashes = {}
 
-    # future = threading.Future()
-
     f1_amount = get_files_amount(folder1_path)
     f2_amount = get_files_amount(folder2_path)
 
@@ -140,9 +138,6 @@ def main():
     # wait for both jobs to be finished before continuing 
     # t1.join()
     # t2.join()
-
-    # folder1_hashes = future.result()
-    # folder2_hashes = t2.result()
 
     async_result1 = pool.apply_async(folder_generate_hashes, args = (folder1_path, ))
     async_result2 = pool.apply_async(folder_generate_hashes, args = (folder2_path, ))
