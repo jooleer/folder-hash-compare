@@ -3,14 +3,14 @@
 import os
 import sys
 import hashlib
-import subprocess
 import zlib
 import logging
 import time
-import threading
 import argparse
-
 from multiprocessing.pool import ThreadPool
+
+# import subprocess
+# import threading
 
 parser = argparse.ArgumentParser(
                     prog='folder_hash_compare.py',
