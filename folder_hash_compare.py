@@ -9,9 +9,6 @@ import time
 import argparse
 from multiprocessing.pool import ThreadPool
 
-# import subprocess
-# import threading
-
 parser = argparse.ArgumentParser(
                     prog='folder_hash_compare.py',
                     description='Compares the hashes of all files in 2 folders',
@@ -127,18 +124,6 @@ def main():
     #     folder2_hashes = folder_generate_hashes(folder_path)
 
     # multithreading 
-    # make 2 threads, one for each folder path
-    # t1 = threading.Thread(target=folder_generate_hashes, args=(folder1_path,))
-    # t2 = threading.Thread(target=folder_generate_hashes, args=(folder2_path,))
-
-    # start each job 
-    # t1.start()
-    # t2.start()
-
-    # wait for both jobs to be finished before continuing 
-    # t1.join()
-    # t2.join()
-
     async_result1 = pool.apply_async(folder_generate_hashes, args = (folder1_path, ))
     async_result2 = pool.apply_async(folder_generate_hashes, args = (folder2_path, ))
 
