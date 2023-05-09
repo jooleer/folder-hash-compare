@@ -64,7 +64,7 @@ def generate_file_hash(file_path, hash_algorithm="CRC32"):
 
         return file_hash
 
-# function to recursively get a list of all files in a folder and its subfolders
+# get a list of all files in a folder and its subfolders
 def get_all_files(folder_path):
     global files_amount
     all_files = []
@@ -74,7 +74,7 @@ def get_all_files(folder_path):
             all_files.append(file_path)
     return all_files
 
-
+# get amount of files in a folder and its subfolders
 def get_files_amount(folder_path):
     files_amount = 0
     for root, dirs, files in os.walk(folder_path):
@@ -82,8 +82,8 @@ def get_files_amount(folder_path):
             files_amount += 1
     return files_amount
 
+# generate hash values for each file in folder_path
 def folder_generate_hashes(folder_path):
-    # generate hash values for each file in folder
     folder_hashes = {}
     for file_path in get_all_files(folder_path):
         file_hash = generate_file_hash(file_path, hash_algorithm)
@@ -91,6 +91,7 @@ def folder_generate_hashes(folder_path):
         folder_hashes[relative_path] = file_hash
         if(args.verbose):
             print(f"Generated hash for: {file_path} [{file_hash}]")
+        logging.info(f"[HASH]: {file_path} -> {file_hash}")
     return folder_hashes
 
 
