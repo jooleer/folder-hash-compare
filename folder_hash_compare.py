@@ -14,9 +14,10 @@ parser = argparse.ArgumentParser(
                     description='Compares the hashes of all files in 2 folders',
                     epilog='Folder Hash Compare - https://github.com/jooleer/folder-hash-compare')
 
-parser.add_argument('-p', '--primary', help='Primary folder, f.e. -p C:\\Folder1\\ or -p /home/user/folder1')
-parser.add_argument('-s', '--secondary', help='Secondary folder, f.e. -s D:\\Folder2\\ or -s /home/user/folder2')
-parser.add_argument('-m', '--missing', action='store_true', help='Search for missing files in either location')
+parser.add_argument('-p', '--primary', help='Primary directory, f.e. -p C:\\folder1\\ or -p /home/user/dir1')
+parser.add_argument('-s', '--secondary', help='Secondary directory, f.e. -s D:\\folder2\\ or -s /home/user/dir2')
+parser.add_argument('-d', '--disable', help='Disable multithreading (recommended when both directories are on the same drive)')
+parser.add_argument('-m', '--missing', action='store_true', help='Search for missing files in secondary directory')
 parser.add_argument('-v', '--verbose', action='store_true', help='Enables verbose logging')
 
 args = parser.parse_args()
@@ -96,8 +97,6 @@ def folder_generate_hashes(folder_path):
 
 
 def main():
-    pool = ThreadPool(processes=2)
-
     files_completed = 0
     files_errors = 0
     files_missing = 0
@@ -125,16 +124,25 @@ def main():
     #     folder2_hashes = folder_generate_hashes(folder_path)
 
     # multithreading 
-    async_result1 = pool.apply_async(folder_generate_hashes, args = (folder1_path, ))
-    async_result2 = pool.apply_async(folder_generate_hashes, args = (folder2_path, ))
+    if(args.disable):
+        # run without multithreading
+        folder1_hashes = folder_generate_hashes(folder1_path)
+        folder2_hashes = folder_generate_hashes(folder2_path)
 
-    # do some other stuff in the main process
-    pool.close()
-    pool.join()
+    else:
+        # use multithreading
+        pool = ThreadPool(processes=2)
 
-    # get the return value from your function.
-    folder1_hashes = async_result1.get()  
-    folder2_hashes = async_result2.get()
+        async_result1 = pool.apply_async(folder_generate_hashes, args = (folder1_path, ))
+        async_result2 = pool.apply_async(folder_generate_hashes, args = (folder2_path, ))
+
+        # do some other stuff in the main process
+        pool.close()
+        pool.join()
+
+        # get the return value from your function.
+        folder1_hashes = async_result1.get()  
+        folder2_hashes = async_result2.get()
 
 
     if(args.missing):
