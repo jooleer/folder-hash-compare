@@ -7,6 +7,7 @@ import zlib
 import logging
 import time
 import argparse
+import datetime
 from multiprocessing.pool import ThreadPool
 
 parser = argparse.ArgumentParser(
@@ -14,26 +15,32 @@ parser = argparse.ArgumentParser(
                     description='Compares the hashes of all files in 2 folders',
                     epilog='Folder Hash Compare - https://github.com/jooleer/folder-hash-compare')
 
-parser.add_argument('-p', '--primary', help='Primary directory, f.e. -p C:\\folder1\\ or -p /home/user/dir1')
-parser.add_argument('-s', '--secondary', help='Secondary directory, f.e. -s D:\\folder2\\ or -s /home/user/dir2')
-parser.add_argument('-d', '--disable', help='Disable multithreading (recommended when both directories are on the same drive)')
+parser.add_argument('-p', '--primary', help='Primary directory, f.e. -p \"C:\\folder1\\\" or -p \"/home/user/dir1\"')
+parser.add_argument('-s', '--secondary', help='Secondary directory, f.e. -s \"D:\\folder2\\\" or -s \"/home/user/dir2\"')
+parser.add_argument('-d', '--disable', action='store_true', help='Disable multithreading (recommended when both directories are on the same drive)')
 parser.add_argument('-m', '--missing', action='store_true', help='Search for missing files in secondary directory')
 parser.add_argument('-v', '--verbose', action='store_true', help='Enables verbose logging')
+parser.add_argument('-c', '--custom', action='store_true', help='Use custom/hardcoded variables in stead of -p -s command-line arguments')
 
 args = parser.parse_args()
 
 
-# define the paths of the two network folders to compare
-folder1_path = r""
-folder2_path = r""
+# define the paths of the two directories to compare
+if(args.custom):
+    folder1_path = r""
+    folder2_path = r""
+    if(args.verbose):
+        print(f"Comparing:\n{folder1_path}\nagainst:\n{folder2_path}\n")
+else:
+    if(not args.primary) or (not args.secondary):
+        sys.exit("No primary or secondary folder given, use -h for help")
+    folder1_path = args.primary
+    folder2_path = args.secondary
+    if(args.verbose):
+        print(f"Comparing:\n{folder1_path}\nagainst:\n{folder2_path}\n")
 
 # hash algorythm (CRC32, MD5, SHA256)
 hash_algorithm = "CRC32"
-
-# define counting variables
-
-files = 0
-# files_amount = 0
 
 # text markup
 class bcolors:
@@ -50,8 +57,6 @@ class bcolors:
 #generate hash value of file
 def generate_file_hash(file_path, hash_algorithm="CRC32"):
     with open(file_path, "rb") as f:
-        global files
-        files += 1
         # sys.stdout.write("Processing file %d of %d (%d%%)\r\n\033[K" % (files, files_amount, (files/files_amount)*100) )
         # sys.stdout.write("Generating hash for file: %s\r\033[F" % (file_path) )
         sys.stdout.flush()
@@ -95,6 +100,12 @@ def folder_generate_hashes(folder_path):
         logging.info(f"[HASH]: {file_path} -> {file_hash}")
     return folder_hashes
 
+# convert seconds to hours, minutes, seconds
+def seconds_to_minutes(seconds):
+    minutes, seconds = divmod(seconds, 60)
+    hours, minutes = divmod(minutes, 60)
+    return hours, minutes, seconds
+
 
 def main():
     files_completed = 0
@@ -109,26 +120,27 @@ def main():
     # start time 
     start = time.time()
 
-    folder1_hashes = {}
-    folder2_hashes = {}
-
     f1_amount = get_files_amount(folder1_path)
     f2_amount = get_files_amount(folder2_path)
 
     # multithreading 
     if(args.disable):
         # run without multithreading
+        if(args.verbose):
+            print(bcolors.UNDERLINE + "Running jobs without multithreading" + bcolors.ENDC)
         folder1_hashes = folder_generate_hashes(folder1_path)
         folder2_hashes = folder_generate_hashes(folder2_path)
 
     else:
         # use multithreading
+        if(args.verbose):
+            print(bcolors.UNDERLINE + "Running jobs with multithreading" + bcolors.ENDC)
+        
         pool = ThreadPool(processes=2)
-
         async_result1 = pool.apply_async(folder_generate_hashes, args = (folder1_path, ))
         async_result2 = pool.apply_async(folder_generate_hashes, args = (folder2_path, ))
 
-        # do some other stuff in the main process
+        # close and join pools
         pool.close()
         pool.join()
 
@@ -139,13 +151,13 @@ def main():
 
     if(args.missing):
         # check for missing files in folder 1
-        for file_path in get_all_files(folder2_path):
-            relative_path = os.path.relpath(file_path, folder2_path)
-            if relative_path not in folder1_hashes:
-                if(args.verbose):
-                    print(bcolors.WARNING + f"{relative_path} is missing from {folder1_path}." + bcolors.ENDC)
-                logging.info(f"[WARNING - MISSING FILE]: {relative_path}")
-                files_missing += 1
+        # for file_path in get_all_files(folder2_path):
+        #     relative_path = os.path.relpath(file_path, folder2_path)
+        #     if relative_path not in folder1_hashes:
+        #         if(args.verbose):
+        #             print(bcolors.WARNING + f"{relative_path} is missing from {folder1_path}." + bcolors.ENDC)
+        #         logging.info(f"[WARNING - MISSING FILE]: {relative_path}")
+        #         files_missing += 1
 
         # check for missing files in folder 2
         for file_path in get_all_files(folder1_path):
@@ -162,7 +174,7 @@ def main():
         if folder1_hashes[relative_path] != folder2_hashes[relative_path]:
             if(args.verbose):
                 print(bcolors.FAIL + f"Hash values for {relative_path} do not match." + bcolors.ENDC)
-            logging.error(f"[FILE HASH ERROR]: {relative_path}")
+            logging.error(f"[ERROR]: FILE HASH MISMATCH FOR: {relative_path} ({folder1_hashes[relative_path]} <> {folder2_hashes[relative_path]}")
             files_errors += 1
         else:
             if(args.verbose):
@@ -170,12 +182,17 @@ def main():
             logging.info(f"[OK]: {relative_path}")
             files_completed += 1
 
-    # end time
     end = time.time()
+    total_time = end - start
     files_amount = f1_amount + f2_amount
 
     # process output information
-    print("\nProcess finished in {:.2f}".format(round((end - start), 2)) + " seconds")
+    if total_time > 60:
+        ct = seconds_to_minutes(total_time)
+        print(f"Process finished in {round(ct[0])} hours, {round(ct[1])} minutes, {round(ct[2])} seconds")
+    else:
+        print("\nProcess finished in {:.2f}".format(round((total_time), 2)) + " seconds")
+    
     print(f"Processed {files_amount} file(s): "
     + bcolors.OKGREEN + f"\n{files_completed} file(s) OK" + bcolors.ENDC
     + bcolors.FAIL + f"\n{files_errors} file(s) FAILED" + bcolors.ENDC
