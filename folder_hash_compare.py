@@ -7,7 +7,6 @@ import zlib
 import logging
 import time
 import argparse
-import datetime
 from multiprocessing.pool import ThreadPool
 
 parser = argparse.ArgumentParser(
