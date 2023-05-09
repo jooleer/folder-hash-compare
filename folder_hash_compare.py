@@ -18,6 +18,7 @@ parser.add_argument('-p', '--primary', help='Primary directory, f.e. -p \"C:\\fo
 parser.add_argument('-s', '--secondary', help='Secondary directory, f.e. -s \"D:\\folder2\\\" or -s \"/home/user/dir2\"')
 parser.add_argument('-d', '--disable', action='store_true', help='Disable multithreading (recommended when both directories are on the same drive)')
 parser.add_argument('-m', '--missing', action='store_true', help='Search for missing files in secondary directory')
+parser.add_argument('-n', '--nmissing', action='store_true', help='Search for missing files in primary directory')
 parser.add_argument('-v', '--verbose', action='store_true', help='Enables verbose logging')
 parser.add_argument('-c', '--custom', action='store_true', help='Use custom/hardcoded variables in stead of -p -s command-line arguments')
 
@@ -25,17 +26,17 @@ args = parser.parse_args()
 
 # define the paths of the two directories to compare
 if(args.custom):
-    folder1_path = r""
-    folder2_path = r""
+    primary_directory = r""
+    secondary_directory = r""
     if(args.verbose):
-        print(f"Comparing:\n{folder1_path}\nagainst:\n{folder2_path}\n")
+        print(f"Comparing:\n{primary_directory}\nagainst:\n{secondary_directory}\n")
 else:
     if(not args.primary) or (not args.secondary):
         sys.exit("No primary or secondary folder given, use -h for help")
-    folder1_path = args.primary
-    folder2_path = args.secondary
+    primary_directory = args.primary
+    secondary_directory = args.secondary
     if(args.verbose):
-        print(f"Comparing:\n{folder1_path}\nagainst:\n{folder2_path}\n")
+        print(f"Comparing:\n{primary_directory}\nagainst:\n{secondary_directory}\n")
 
 # hash algorythm (CRC32, MD5, SHA256)
 hash_algorithm = "CRC32"
@@ -118,16 +119,16 @@ def main():
     # start time 
     start = time.time()
 
-    f1_amount = get_files_amount(folder1_path)
-    f2_amount = get_files_amount(folder2_path)
+    f1_amount = get_files_amount(primary_directory)
+    f2_amount = get_files_amount(secondary_directory)
 
     # multithreading 
     if(args.disable):
         # run without multithreading
         if(args.verbose):
             print(bcolors.UNDERLINE + "Running jobs without multithreading" + bcolors.ENDC)
-        folder1_hashes = folder_generate_hashes(folder1_path)
-        folder2_hashes = folder_generate_hashes(folder2_path)
+        folder1_hashes = folder_generate_hashes(primary_directory)
+        folder2_hashes = folder_generate_hashes(secondary_directory)
 
     else:
         # use multithreading
@@ -135,8 +136,8 @@ def main():
             print(bcolors.UNDERLINE + "Running jobs with multithreading" + bcolors.ENDC)
         
         pool = ThreadPool(processes=2)
-        async_result1 = pool.apply_async(folder_generate_hashes, args = (folder1_path, ))
-        async_result2 = pool.apply_async(folder_generate_hashes, args = (folder2_path, ))
+        async_result1 = pool.apply_async(folder_generate_hashes, args = (primary_directory, ))
+        async_result2 = pool.apply_async(folder_generate_hashes, args = (secondary_directory, ))
 
         # close and join pools
         pool.close()
@@ -146,25 +147,33 @@ def main():
         folder1_hashes = async_result1.get()  
         folder2_hashes = async_result2.get()
 
-
-    if(args.missing):
-        # check for missing files in folder 1
-        # for file_path in get_all_files(folder2_path):
-        #     relative_path = os.path.relpath(file_path, folder2_path)
-        #     if relative_path not in folder1_hashes:
-        #         if(args.verbose):
-        #             print(bcolors.WARNING + f"{relative_path} is missing from {folder1_path}." + bcolors.ENDC)
-        #         logging.info(f"[WARNING - MISSING FILE]: {relative_path}")
-        #         files_missing += 1
-
-        # check for missing files in folder 2
-        for file_path in get_all_files(folder1_path):
-            relative_path = os.path.relpath(file_path, folder1_path)
-            if relative_path not in folder2_hashes:
+    # check for missing files in primary directory
+    if(args.nmissing):
+        for file_path in get_all_files(secondary_directory):
+            relative_path = os.path.relpath(file_path, secondary_directory)
+            if relative_path not in folder1_hashes:
                 if(args.verbose):
-                    print(bcolors.WARNING + f"{relative_path} is missing from {folder2_path}." + bcolors.ENDC)
+                    print(bcolors.WARNING + f"{relative_path} is missing from {primary_directory}." + bcolors.ENDC)
                 logging.info(f"[WARNING - MISSING FILE]: {relative_path}")
                 files_missing += 1
+        if files_missing > 0:
+            print(bcolors.FAIL + f"{files_missing} files missing from primary directory: {primary_directory}" + bcolors.ENDC)
+        else:
+            print(bcolors.OKGREEN + f"No files missing from primary directory: {primary_directory}" + bcolors.ENDC)
+
+    # check for missing files in secondary directory
+    if(args.missing):
+        for file_path in get_all_files(primary_directory):
+            relative_path = os.path.relpath(file_path, primary_directory)
+            if relative_path not in folder2_hashes:
+                if(args.verbose):
+                    print(bcolors.WARNING + f"{relative_path} is missing from {secondary_directory}." + bcolors.ENDC)
+                logging.info(f"[WARNING - MISSING FILE]: {relative_path}")
+                files_missing += 1
+        if files_missing > 0:
+            print(bcolors.FAIL + f"{files_missing} files missing from secondary directory: {secondary_directory}" + bcolors.ENDC)
+        else:
+            print(bcolors.OKGREEN + f"No files missing from secondary directory: {secondary_directory}" + bcolors.ENDC)
 
 
     # compare the hash values for each file in both folders
