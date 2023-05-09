@@ -24,7 +24,6 @@ parser.add_argument('-c', '--custom', action='store_true', help='Use custom/hard
 
 args = parser.parse_args()
 
-
 # define the paths of the two directories to compare
 if(args.custom):
     folder1_path = r""
