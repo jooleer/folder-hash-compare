@@ -115,14 +115,6 @@ def main():
     f1_amount = get_files_amount(folder1_path)
     f2_amount = get_files_amount(folder2_path)
 
-    # def gen_folder1_hashes(folder_path=folder1_path):
-    #     folder1_hashes
-    #     folder1_hashes = folder_generate_hashes(folder_path)
-        
-    # def gen_folder2_hashes(folder_path=folder2_path):
-    #     folder2_hashes
-    #     folder2_hashes = folder_generate_hashes(folder_path)
-
     # multithreading 
     if(args.disable):
         # run without multithreading
