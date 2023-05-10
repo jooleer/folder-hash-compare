@@ -7,44 +7,6 @@ import time
 import argparse
 from multiprocessing.pool import ThreadPool
 
-parser = argparse.ArgumentParser(
-                    prog='folder_hash_compare.py',
-                    description='Compares the hashes of all files in 2 folders',
-                    epilog='Folder Hash Compare - https://github.com/jooleer/folder-hash-compare')
-
-parser.add_argument('-p', '--primary', help='Primary directory, f.e. -p \"C:\\folder1\\\" or -p \"/home/user/dir1\"')
-parser.add_argument('-s', '--secondary', help='Secondary directory, f.e. -s \"D:\\folder2\\\" or -s \"/home/user/dir2\"')
-parser.add_argument('-a', '--algorithm', help='Set algorithm: CRC32 (default), MD5, SHA256')
-parser.add_argument('-d', '--disable', action='store_true', help='Disable multithreading (recommended when both directories are on the same drive)')
-parser.add_argument('-m', '--missing', action='store_true', help='Search for missing files in secondary directory')
-parser.add_argument('-n', '--nmissing', action='store_true', help='Search for missing files in primary directory')
-parser.add_argument('-v', '--verbose', action='store_true', help='Enables verbose logging')
-parser.add_argument('-l', '--logging', action='store_true', help='Disables logging to txt file in logs/ folder')
-parser.add_argument('-c', '--custom', action='store_true', help='Use custom/hardcoded variables in stead of -p -s command-line arguments')
-
-
-args = parser.parse_args()
-
-# define the paths of the two directories to compare
-if(args.custom):
-    primary_directory = r""
-    secondary_directory = r""
-    if(args.verbose):
-        print(f"Comparing:\n{primary_directory}\nagainst:\n{secondary_directory}\n")
-else:
-    if(not args.primary) or (not args.secondary):
-        sys.exit("No primary or secondary folder given, use -h for help")
-    primary_directory = args.primary
-    secondary_directory = args.secondary
-    if(args.verbose):
-        print(f"Comparing:\n{primary_directory}\nagainst:\n{secondary_directory}\n")
-
-# hash algorythm (CRC32, MD5, SHA256)
-if(not args.algorithm):
-    hash_algorithm = "CRC32"
-else:
-    hash_algorithm = args.algorithm
-
 # text markup
 class bcolors:
     HEADER = '\033[95m'
@@ -122,13 +84,13 @@ def main():
         logging.info(f"-p {args.primary} -s {args.secondary} -a {args.algorithm} -d {args.disable} -m {args.missing} -n {args.nmissing} -v {args.verbose} -l {args.logging} -c {args.custom}")
 
 
-    # start time 
+    # start time
     start = time.time()
 
     f1_amount = get_files_amount(primary_directory)
     f2_amount = get_files_amount(secondary_directory)
 
-    # multithreading 
+    # multithreading
     if(args.disable):
         # run without multithreading
         if(args.verbose):
@@ -140,7 +102,7 @@ def main():
         # use multithreading
         if(args.verbose):
             print(bcolors.UNDERLINE + "Running jobs with multithreading" + bcolors.ENDC)
-        
+
         pool = ThreadPool(processes=2)
         async_result1 = pool.apply_async(folder_generate_hashes, args = (primary_directory, ))
         async_result2 = pool.apply_async(folder_generate_hashes, args = (secondary_directory, ))
@@ -148,7 +110,7 @@ def main():
         pool.close()
         pool.join()
 
-        folder1_hashes = async_result1.get()  
+        folder1_hashes = async_result1.get()
         folder2_hashes = async_result2.get()
 
     # check for missing files in primary directory
@@ -178,7 +140,7 @@ def main():
             if relative_path not in folder2_hashes:
                 if(args.verbose):
                     print(bcolors.WARNING + f"{relative_path} is missing from {secondary_directory}." + bcolors.ENDC)
-                if(not args.logging):    
+                if(not args.logging):
                     logging.info(f"[WARNING - MISSING FILE]: {relative_path}")
                 files_missing += 1
                 files_dir2_missing += 1
@@ -214,7 +176,7 @@ def main():
         print(f"Process finished in {round(ct[0])} hours, {round(ct[1])} minutes, {round(ct[2])} seconds")
     else:
         print("\nProcess finished in {:.2f}".format(round((total_time), 2)) + " seconds")
-    
+
     print(f"Processed {files_amount} file(s): "
     + bcolors.OKGREEN + f"\n{files_completed} file(s) OK" + bcolors.ENDC
     + bcolors.FAIL + f"\n{files_errors} file(s) FAILED" + bcolors.ENDC
@@ -222,4 +184,42 @@ def main():
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+                    prog='folder_hash_compare.py',
+                    description='Compares the hashes of all files in 2 folders',
+                    epilog='Folder Hash Compare - https://github.com/jooleer/folder-hash-compare')
+
+    parser.add_argument('-p', '--primary', help='Primary directory, f.e. -p \"C:\\folder1\\\" or -p \"/home/user/dir1\"')
+    parser.add_argument('-s', '--secondary', help='Secondary directory, f.e. -s \"D:\\folder2\\\" or -s \"/home/user/dir2\"')
+    parser.add_argument('-a', '--algorithm', help='Set algorithm: CRC32 (default), MD5, SHA256')
+    parser.add_argument('-d', '--disable', action='store_true', help='Disable multithreading (recommended when both directories are on the same drive)')
+    parser.add_argument('-m', '--missing', action='store_true', help='Search for missing files in secondary directory')
+    parser.add_argument('-n', '--nmissing', action='store_true', help='Search for missing files in primary directory')
+    parser.add_argument('-v', '--verbose', action='store_true', help='Enables verbose logging')
+    parser.add_argument('-l', '--logging', action='store_true', help='Disables logging to txt file in logs/ folder')
+    parser.add_argument('-c', '--custom', action='store_true', help='Use custom/hardcoded variables in stead of -p -s command-line arguments')
+
+
+    args = parser.parse_args()
+
+    # define the paths of the two directories to compare
+    if(args.custom):
+        primary_directory = r""
+        secondary_directory = r""
+        if(args.verbose):
+            print(f"Comparing:\n{primary_directory}\nagainst:\n{secondary_directory}\n")
+    else:
+        if(not args.primary) or (not args.secondary):
+            sys.exit("No primary or secondary folder given, use -h for help")
+        primary_directory = args.primary
+        secondary_directory = args.secondary
+        if(args.verbose):
+            print(f"Comparing:\n{primary_directory}\nagainst:\n{secondary_directory}\n")
+
+    # hash algorythm (CRC32, MD5, SHA256)
+    if(not args.algorithm):
+        hash_algorithm = "CRC32"
+    else:
+        hash_algorithm = args.algorithm
+
     main()
