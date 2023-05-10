@@ -1,8 +1,6 @@
 # Folder Hash Compare
 Compares hash values for 2 directories
 
-#### Video Demo: [https://youtu.be/-sZsu4LgckM](https://youtu.be/-sZsu4LgckM)
-
 # Description:
 
 Folder Hash Compare generates hashes for all files in 2 directories and then compares those hashes against eachother.
