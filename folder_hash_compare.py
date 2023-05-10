@@ -88,7 +88,7 @@ def get_all_files(folder_path):
 # get amount of files in a folder and its subfolders
 def get_files_amount(folder_path):
     files_amount = 0
-    for files in os.walk(folder_path):
+    for root, dirs, files in os.walk(folder_path):
         for filename in files:
             files_amount += 1
     return files_amount
@@ -155,6 +155,7 @@ def main():
 
     # check for missing files in primary directory
     if(args.nmissing):
+        files_dir1_missing = 0
         for file_path in get_all_files(secondary_directory):
             relative_path = os.path.relpath(file_path, secondary_directory)
             if relative_path not in folder1_hashes:
@@ -163,13 +164,15 @@ def main():
                 if(not args.logging):
                     logging.info(f"[WARNING - MISSING FILE]: {relative_path}")
                 files_missing += 1
-        if files_missing > 0:
-            print(bcolors.FAIL + f"{files_missing} files missing from primary directory: {primary_directory} (check {log_name}.txt for details)" + bcolors.ENDC)
+                files_dir1_missing += 1
+        if files_dir1_missing > 0:
+            print(bcolors.FAIL + f"{files_dir1_missing} files missing from primary directory: {primary_directory} (check {log_name}.txt for details)" + bcolors.ENDC)
         else:
             print(bcolors.OKGREEN + f"No files missing from primary directory: {primary_directory}" + bcolors.ENDC)
 
     # check for missing files in secondary directory
     if(args.missing):
+        files_dir2_missing = 0
         for file_path in get_all_files(primary_directory):
             relative_path = os.path.relpath(file_path, primary_directory)
             if relative_path not in folder2_hashes:
@@ -178,11 +181,11 @@ def main():
                 if(not args.logging):    
                     logging.info(f"[WARNING - MISSING FILE]: {relative_path}")
                 files_missing += 1
-        if files_missing > 0:
-            print(bcolors.FAIL + f"{files_missing} files missing from secondary directory: {secondary_directory} (check {log_name}.txt for details)" + bcolors.ENDC)
+                files_dir2_missing += 1
+        if files_dir2_missing > 0:
+            print(bcolors.FAIL + f"{files_dir2_missing} files missing from secondary directory: {secondary_directory} (check {log_name}.txt for details)" + bcolors.ENDC)
         else:
             print(bcolors.OKGREEN + f"No files missing from secondary directory: {secondary_directory}" + bcolors.ENDC)
-
 
     # compare the hash values for each file in both folders
     for relative_path in set(folder1_hashes.keys()).intersection(set(folder2_hashes.keys())):
