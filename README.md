@@ -45,6 +45,6 @@ FHC can be run with several parameters:
 # Final notes:
 I made Folder Hash Compare because there wasn't a program that suited my needs and worked cross-platform. After backing up a large amount of data to an external source I had some trouble finding a solution to make sure that all files were copied correctly. FHC started as a small script to quickly check folders but I added several functions and options (multithreading, enabling and disabling features) that other solutions didn't provide.
 
-<br/>
+
 _This software was created for educational purposes for my final project for CS50P and is licensed under the [MIT License](https://github.com/jooleer/folder-hash-compare/blob/main/LICENSE)._
 
