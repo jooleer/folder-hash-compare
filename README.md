@@ -46,10 +46,13 @@ FHC can be run with several parameters:
 
 `-v, --verbose` displays a verbose logging output as the program runs, notifying the user of each step.
 
-###Example usage:
+### Example usage:
 `python folder_hash_compare.py -p "//NAS/directory1/" -s "//SecondNAS/directory2" -a MD5 -d -m -n -v`
-The application will compare `//NAS/directory1/` all files in the main and all sub-folders against all files in `//SecondNAS/directory2`. `-a MD5` sets the algorithm used algorithm to MD5. `-d` will disable multithreading and complete hashing of all files in `//NAS/directory1/` before hashing files in `//SecondNAS/directory2`.
-`-m` and `-n` will scan for missing files in both directories. `-v` will enable a more clear verbose logging that outputs each step of the process while running.
+* The application will compare `//NAS/directory1/` all files in the main and all sub-folders against all files in `//SecondNAS/directory2`. 
+* `-a MD5` sets the algorithm used algorithm to MD5. 
+* `-d` will disable multithreading and complete hashing of all files in `//NAS/directory1/` before hashing files in `//SecondNAS/directory2`.
+* `-m` and `-n` will scan for missing files in both directories. 
+* `-v` will enable a more clear verbose logging that outputs each step of the process while running.
 
 <br/>
 
