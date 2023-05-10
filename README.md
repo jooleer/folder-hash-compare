@@ -1,7 +1,7 @@
 # Folder Hash Compare
 Compares hash values for 2 directories
 
-#### Video Demo: tbd
+#### Video Demo: [https://youtu.be/-sZsu4LgckM](https://youtu.be/-sZsu4LgckM)
 
 ## Description:
 
