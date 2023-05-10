@@ -1,13 +1,19 @@
 # Folder Hash Compare
 Compares hash values for 2 directories
 
+<br/>
+
 # Description:
 
 Folder Hash Compare generates hashes for all files in 2 directories and then compares those hashes against eachother.
 
+<br/>
+
 # Installation/Requirements:
 
 Can be run as-is with python 3.x
+
+<br/>
 
 # Usage:
 
@@ -40,7 +46,7 @@ FHC can be run with several parameters:
 
 `-v, --verbose` displays a verbose logging output as the program runs, notifying the user of each step.
 
-
+<br/>
 
 # Final notes:
 I made Folder Hash Compare because there wasn't a program that suited my needs and worked cross-platform. After backing up a large amount of data to an external source I had some trouble finding a solution to make sure that all files were copied correctly. FHC started as a small script to quickly check folders but I added several functions and options (multithreading, enabling and disabling features) that other solutions didn't provide.
