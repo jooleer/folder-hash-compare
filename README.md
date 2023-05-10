@@ -32,7 +32,7 @@ FHC can be run with several parameters:
 
 `-p PRIMARY` and `-s SECONDARY` can be any path starting from the root to deeper directories. Directories can only be scanned and processed granted the user has access to them.
 
-`-a, --algorithm` allows the user to change the default algorithm to any of the 3 available ones: CRC32, MD5 or SHA256. CRC32 is faster but not secure, MD5 is slower than CRC32 but faster than SHA256 but is nowadays considered insecure. SHA256 is slower than both CRC32 and MD5 but is also more secure than either of them. For the purposes of this program I didn't feel the need to have a higher than 256-bit algorithm as it's generally just to compare if a directories' contents copied without errors to another one.
+`-a, --algorithm` allows the user to change the default algorithm to any of the 3 available ones: __CRC32__, __MD5__ or __SHA256__. __CRC32__ is faster but not secure, __MD5__ is slower than __CRC32__ but faster than __SHA256__ but is nowadays considered insecure. __SHA256__ is slower than both __CRC32__ and __MD5__ but is also more secure than either of them. For the purposes of this program I didn't feel the need to have a higher than 256-bit algorithm as it's generally just to verify if a directories' contents copied without errors to another one.
 
 `-d, --disable` disables multithreading. By default multithreading is enabled but if comparing 2 directories that are on the same drive it might be faster to have multithreading disabled. When disabled files will be hashes sequentially, starting from the primary directory and then processing the secondary directory. When multithreading is enabled file hashes are generated simultaneously. 
 
