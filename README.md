@@ -19,18 +19,14 @@ FHC can be run with several parameters:
 -h, --help                            shows help message and exits
 -p PRIMARY, --primary PRIMARY         path of primary directory f.e. -p "/home/user/dir1" or -p "C:\folder1"  
 -s SECONDARY, --secondary SECONDARY   path of secondary directory f.e. -p "/home/user/dir2" or -p "D:\folder2"
+-a, --algorithm                       set algorithm to CRC32, MD5 or SHA256 (CRC32 by default)
 -d, --disable                         disabled multithreading, when disabled the hashing will be done sequentially, by default they will be done simultaniously
 -m, --missing                         searches for missing files in secondary directory (i.e. present in PRIMARY but not present in SECONDARY)
 -n, --nmissing                        searches for missing files in primary directory (i.e. present in SECONDARY but not present in PRIMARY)
 -v, --verbose                         enables verbose logging, outputs all steps in terminal
--l, --logging                         enables logging to txt file in logs/ folder
+-l, --logging                         disables logging to txt file in logs/ folder
 -c, --custom                          disables use of -p and -s parameters and allows to set hardcoded directory paths (for jobs that have to be done frequently with the same paths)
 ```
-
-
-
-# Sources:
-
 
 
 
