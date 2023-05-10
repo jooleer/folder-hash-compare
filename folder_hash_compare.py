@@ -163,7 +163,7 @@ def main():
             if(args.verbose):
                 print(bcolors.FAIL + f"Hash values for {relative_path} do not match." + bcolors.ENDC)
             if(not args.logging):
-                logging.error(f"[ERROR]: FILE HASH MISMATCH FOR: {relative_path} ({folder1_hashes[relative_path]} <> {folder2_hashes[relative_path]}")
+                logging.error(f"[ERROR]: FILE HASH MISMATCH FOR: {relative_path} ({folder1_hashes[relative_path]} <> {folder2_hashes[relative_path]})")
             files_errors += 1
         else:
             if(args.verbose):
