@@ -14,7 +14,7 @@ Can be run as-is with python 3.x
 # Usage:
 
 FHC can be run with several parameters:
-`folder_hash_compare.py [-h] [-p PRIMARY] [-s SECONDARY] [-d] [-m] [-n] [-v] [-c]`
+`folder_hash_compare.py [-h] [-p PRIMARY] [-s SECONDARY] [-d] [-m] [-n] [-v] [-l] [-c]`
 ```
 -h, --help                            shows help message and exits
 -p PRIMARY, --primary PRIMARY         path of primary directory f.e. -p "/home/user/dir1" or -p "C:\folder1"  
