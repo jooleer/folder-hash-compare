@@ -1,5 +1,3 @@
-# this code is still WIP
-
 import os
 import sys
 import hashlib
