@@ -16,11 +16,14 @@ parser = argparse.ArgumentParser(
 
 parser.add_argument('-p', '--primary', help='Primary directory, f.e. -p \"C:\\folder1\\\" or -p \"/home/user/dir1\"')
 parser.add_argument('-s', '--secondary', help='Secondary directory, f.e. -s \"D:\\folder2\\\" or -s \"/home/user/dir2\"')
+parser.add_argument('-a', '--algorithm', help='Set algorithm: CRC32 (default), MD5, SHA256')
 parser.add_argument('-d', '--disable', action='store_true', help='Disable multithreading (recommended when both directories are on the same drive)')
 parser.add_argument('-m', '--missing', action='store_true', help='Search for missing files in secondary directory')
 parser.add_argument('-n', '--nmissing', action='store_true', help='Search for missing files in primary directory')
 parser.add_argument('-v', '--verbose', action='store_true', help='Enables verbose logging')
+parser.add_argument('-l', '--logging', action='store_true', help='Disables logging to txt file in logs/ folder')
 parser.add_argument('-c', '--custom', action='store_true', help='Use custom/hardcoded variables in stead of -p -s command-line arguments')
+
 
 args = parser.parse_args()
 
@@ -39,7 +42,10 @@ else:
         print(f"Comparing:\n{primary_directory}\nagainst:\n{secondary_directory}\n")
 
 # hash algorythm (CRC32, MD5, SHA256)
-hash_algorithm = "CRC32"
+if(not args.algorithm):
+    hash_algorithm = "CRC32"
+else:
+    hash_algorithm = args.algorithm
 
 # text markup
 class bcolors:
@@ -58,7 +64,7 @@ def generate_file_hash(file_path, hash_algorithm="CRC32"):
     with open(file_path, "rb") as f:
         # sys.stdout.write("Processing file %d of %d (%d%%)\r\n\033[K" % (files, files_amount, (files/files_amount)*100) )
         # sys.stdout.write("Generating hash for file: %s\r\033[F" % (file_path) )
-        sys.stdout.flush()
+        # sys.stdout.flush()
         file_data = f.read()
         if hash_algorithm == "CRC32":
             file_hash = zlib.crc32(file_data)
@@ -82,7 +88,7 @@ def get_all_files(folder_path):
 # get amount of files in a folder and its subfolders
 def get_files_amount(folder_path):
     files_amount = 0
-    for root, dirs, files in os.walk(folder_path):
+    for files in os.walk(folder_path):
         for filename in files:
             files_amount += 1
     return files_amount
@@ -96,7 +102,8 @@ def folder_generate_hashes(folder_path):
         folder_hashes[relative_path] = file_hash
         if(args.verbose):
             print(f"Generated hash for: {file_path} [{file_hash}]")
-        logging.info(f"[HASH]: {file_path} -> {file_hash}")
+        if(not args.logging):
+            logging.info(f"[HASH]: {file_path} -> {file_hash}")
     return folder_hashes
 
 # convert seconds to hours, minutes, seconds
@@ -111,10 +118,11 @@ def main():
     files_errors = 0
     files_missing = 0
 
-    # set logging file parameter
-    if not os.path.isdir("logs"):
-        os.makedirs("logs")
-    logging.basicConfig(filename="logs/log_"+str(time.time())+".txt", level=logging.INFO)
+    if(not args.logging):
+        if not os.path.isdir("logs"):
+            os.makedirs("logs")
+        log_name = str(time.time())
+        logging.basicConfig(filename="logs/log_"+log_name+".txt", level=logging.INFO)
 
     # start time 
     start = time.time()
@@ -139,11 +147,9 @@ def main():
         async_result1 = pool.apply_async(folder_generate_hashes, args = (primary_directory, ))
         async_result2 = pool.apply_async(folder_generate_hashes, args = (secondary_directory, ))
 
-        # close and join pools
         pool.close()
         pool.join()
 
-        # get the return value from your function.
         folder1_hashes = async_result1.get()  
         folder2_hashes = async_result2.get()
 
@@ -154,10 +160,11 @@ def main():
             if relative_path not in folder1_hashes:
                 if(args.verbose):
                     print(bcolors.WARNING + f"{relative_path} is missing from {primary_directory}." + bcolors.ENDC)
-                logging.info(f"[WARNING - MISSING FILE]: {relative_path}")
+                if(not args.logging):
+                    logging.info(f"[WARNING - MISSING FILE]: {relative_path}")
                 files_missing += 1
         if files_missing > 0:
-            print(bcolors.FAIL + f"{files_missing} files missing from primary directory: {primary_directory}" + bcolors.ENDC)
+            print(bcolors.FAIL + f"{files_missing} files missing from primary directory: {primary_directory} (check {log_name}.txt for details)" + bcolors.ENDC)
         else:
             print(bcolors.OKGREEN + f"No files missing from primary directory: {primary_directory}" + bcolors.ENDC)
 
@@ -168,10 +175,11 @@ def main():
             if relative_path not in folder2_hashes:
                 if(args.verbose):
                     print(bcolors.WARNING + f"{relative_path} is missing from {secondary_directory}." + bcolors.ENDC)
-                logging.info(f"[WARNING - MISSING FILE]: {relative_path}")
+                if(not args.logging):    
+                    logging.info(f"[WARNING - MISSING FILE]: {relative_path}")
                 files_missing += 1
         if files_missing > 0:
-            print(bcolors.FAIL + f"{files_missing} files missing from secondary directory: {secondary_directory}" + bcolors.ENDC)
+            print(bcolors.FAIL + f"{files_missing} files missing from secondary directory: {secondary_directory} (check {log_name}.txt for details)" + bcolors.ENDC)
         else:
             print(bcolors.OKGREEN + f"No files missing from secondary directory: {secondary_directory}" + bcolors.ENDC)
 
@@ -181,12 +189,14 @@ def main():
         if folder1_hashes[relative_path] != folder2_hashes[relative_path]:
             if(args.verbose):
                 print(bcolors.FAIL + f"Hash values for {relative_path} do not match." + bcolors.ENDC)
-            logging.error(f"[ERROR]: FILE HASH MISMATCH FOR: {relative_path} ({folder1_hashes[relative_path]} <> {folder2_hashes[relative_path]}")
+            if(not args.logging):
+                logging.error(f"[ERROR]: FILE HASH MISMATCH FOR: {relative_path} ({folder1_hashes[relative_path]} <> {folder2_hashes[relative_path]}")
             files_errors += 1
         else:
             if(args.verbose):
                 print(bcolors.OKGREEN + f"Hash values for {relative_path} match." + bcolors.ENDC)
-            logging.info(f"[OK]: {relative_path}")
+            if(not args.logging):
+                logging.info(f"[OK]: {relative_path}")
             files_completed += 1
 
     end = time.time()
