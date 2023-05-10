@@ -54,13 +54,19 @@ def get_files_amount(folder_path):
 def folder_generate_hashes(folder_path):
     folder_hashes = {}
     for file_path in get_all_files(folder_path):
-        file_hash = generate_file_hash(file_path, hash_algorithm)
+        #in case program is not run directly
+        if __name__ == '__main__':
+            file_hash = generate_file_hash(file_path, hash_algorithm)
+        else:
+            file_hash = generate_file_hash(file_path, "CRC32")
         relative_path = os.path.relpath(file_path, folder_path)
         folder_hashes[relative_path] = file_hash
-        if(args.verbose):
-            print(f"Generated hash for: {file_path} [{file_hash}]")
-        if(not args.logging):
-            logging.info(f"[HASH]: {file_path} -> {file_hash}")
+        # in case program is not run directly
+        if __name__ == '__main__':
+            if(args.verbose):
+                print(f"Generated hash for: {file_path} [{file_hash}]")
+            if(not args.logging):
+                logging.info(f"[HASH]: {file_path} -> {file_hash}")
     return folder_hashes
 
 # convert seconds to hours, minutes, seconds
