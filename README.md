@@ -36,7 +36,7 @@ FHC can be run with several parameters:
 
 `-d, --disable` disables multithreading. By default multithreading is enabled but if comparing 2 directories that are on the same drive it might be faster to have multithreading disabled. When disabled files will be hashes sequentially, starting from the primary directory and then processing the secondary directory. When multithreading is enabled file hashes are generated simultaneously. 
 
-`-l, --logging` is recomendded to turn on, especially when you expect to encounter missing files (also see `-m, --missing` & `-n, --nmissing` below)
+`-l, --logging` disables logging _(when enabled logs will be stored as a .txt file in logs/ folder)_, recomendded to keep enabled, especially when you expect to encounter missing files (also see `-m, --missing` & `-n, --nmissing` below)
 
 `-m, --missing` and `-n, --nmissing` search for missing files. `-m` will report missing files in the secondary directory, i.e. files that are present in the PRIMARY directory but missing in the SECONDARY directory. `-n` will search for missing files the other way around, i.e. files that are present in the SECONDARY directory but missing in the PRIMARY directory. Recommended to use `-l, --logging` when using either of these settings.
 
