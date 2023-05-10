@@ -54,7 +54,7 @@ def get_files_amount(folder_path):
 def folder_generate_hashes(folder_path):
     folder_hashes = {}
     for file_path in get_all_files(folder_path):
-        #in case program is not run directly
+        # in case program is not run directly
         if __name__ == '__main__':
             file_hash = generate_file_hash(file_path, hash_algorithm)
         else:
