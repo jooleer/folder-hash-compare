@@ -62,9 +62,6 @@ class bcolors:
 #generate hash value of file
 def generate_file_hash(file_path, hash_algorithm="CRC32"):
     with open(file_path, "rb") as f:
-        # sys.stdout.write("Processing file %d of %d (%d%%)\r\n\033[K" % (files, files_amount, (files/files_amount)*100) )
-        # sys.stdout.write("Generating hash for file: %s\r\033[F" % (file_path) )
-        # sys.stdout.flush()
         file_data = f.read()
         if hash_algorithm == "CRC32":
             file_hash = zlib.crc32(file_data)
@@ -123,6 +120,9 @@ def main():
             os.makedirs("logs")
         log_name = str(time.time())
         logging.basicConfig(filename="logs/log_"+log_name+".txt", level=logging.INFO)
+        logging.info("[INFO]:[SETTINGS]:")
+        logging.info(f"-p {args.primary} -s {args.secondary} -a {args.algorithm} -d {args.disable} -m {args.missing} -n {args.nmissing} -v {args.verbose} -l {args.logging} -c {args.custom}")
+
 
     # start time 
     start = time.time()
@@ -166,7 +166,9 @@ def main():
                 files_missing += 1
                 files_dir1_missing += 1
         if files_dir1_missing > 0:
-            print(bcolors.FAIL + f"{files_dir1_missing} files missing from primary directory: {primary_directory} (check {log_name}.txt for details)" + bcolors.ENDC)
+            print(bcolors.FAIL + f"{files_dir1_missing} files missing from primary directory: {primary_directory} " + bcolors.ENDC)
+            if(not args.logging):
+                print(f"(see {log_name}.txt for details)")
         else:
             print(bcolors.OKGREEN + f"No files missing from primary directory: {primary_directory}" + bcolors.ENDC)
 
@@ -183,7 +185,9 @@ def main():
                 files_missing += 1
                 files_dir2_missing += 1
         if files_dir2_missing > 0:
-            print(bcolors.FAIL + f"{files_dir2_missing} files missing from secondary directory: {secondary_directory} (check {log_name}.txt for details)" + bcolors.ENDC)
+            print(bcolors.FAIL + f"{files_dir2_missing} files missing from secondary directory: {secondary_directory}" + bcolors.ENDC)
+            if(not args.logging):
+                print(f"(see {log_name}.txt for details)")
         else:
             print(bcolors.OKGREEN + f"No files missing from secondary directory: {secondary_directory}" + bcolors.ENDC)
 
