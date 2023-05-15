@@ -89,7 +89,7 @@ def search_missing_files(directory, folder_hashes):
     if files_missing > 0:
         print(bcolors.FAIL + f"{files_missing} files missing from directory: {directory} " + bcolors.ENDC)
         if(not args.logging):
-            print(f"(see log for details)")
+            print("(see log for details)")
     else:
         print(bcolors.OKGREEN + f"No files missing from directory: {directory}" + bcolors.ENDC)
     return files_missing
@@ -143,7 +143,6 @@ def main():
     if(args.missing):
         files_missing_total += search_missing_files(secondary_directory, folder1_hashes)
 
-
     # compare the hash values for each file in both folders
     for relative_path in set(folder1_hashes.keys()).intersection(set(folder2_hashes.keys())):
         if folder1_hashes[relative_path] != folder2_hashes[relative_path]:
@@ -192,24 +191,22 @@ if __name__ == '__main__':
     parser.add_argument('-l', '--logging', action='store_true', help='Disables logging to txt file in logs/ folder')
     parser.add_argument('-c', '--custom', action='store_true', help='Use custom/hardcoded variables in stead of -p -s command-line arguments')
 
-
     args = parser.parse_args()
 
     # define the paths of the two directories to compare
     if(args.custom):
         primary_directory = r""
         secondary_directory = r""
-        if(args.verbose):
-            print(f"Comparing:\n{primary_directory}\nagainst:\n{secondary_directory}\n")
     else:
         if(not args.primary) or (not args.secondary):
             sys.exit("No primary or secondary folder given, use -h for help")
         primary_directory = args.primary
         secondary_directory = args.secondary
-        if(args.verbose):
-            print(f"Comparing:\n{primary_directory}\nagainst:\n{secondary_directory}\n")
+    
+    if(args.verbose):
+        print(f"Comparing:\n{primary_directory}\nagainst:\n{secondary_directory}\n")
 
-    # hash algorythm (CRC32, MD5, SHA256)
+    # hash algorithm (CRC32, MD5, SHA256)
     if(not args.algorithm):
         hash_algorithm = "CRC32"
     else:
