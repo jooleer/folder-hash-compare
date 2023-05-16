@@ -107,6 +107,7 @@ def main():
             os.makedirs("logs")
         log_name = str(time.time())
         logging.basicConfig(filename="logs/log_"+log_name+".txt", level=logging.INFO)
+        print(f"Log file: logs/log_{log_name}.txt\n")
         logging.info(f"[SETTINGS]: -p {args.primary} -s {args.secondary} -a {args.algorithm} -d {args.disable} -m {args.missing} -n {args.nmissing} -v {args.verbose} -l {args.logging} -c {args.custom}")
         logging.info(f"Starting time: {datetime.datetime.fromtimestamp(start).strftime('%Y-%m-%d %H:%M:%S')}")
 
@@ -156,7 +157,7 @@ def main():
             if(args.verbose):
                 print(bcolors.OKGREEN + f"Hash values for {relative_path} match." + bcolors.ENDC)
             if(not args.logging):
-                logging.info(f"[OK]: {relative_path}")
+                logging.info(f"[HASH OK]: {relative_path}")
             files_completed += 1
 
     end = time.time()
@@ -168,7 +169,7 @@ def main():
         ct = seconds_to_minutes(total_time)
         print(f"\nProcess finished in {round(ct[0])} hours, {round(ct[1])} minutes, {round(ct[2])} seconds")
         logging.info(f"End time: {datetime.datetime.fromtimestamp(end).strftime('%Y-%m-%d %H:%M:%S')}")
-        logging.info(f"[INFO]: Process finished in {round(ct[0])} hours, {round(ct[1])} minutes, {round(ct[2])} seconds")
+        logging.info(f"Process finished in {round(ct[0])} hours, {round(ct[1])} minutes, {round(ct[2])} seconds")
     else:
         print(f"\nProcess finished in {round((total_time), 2)} seconds")
         logging.info(f"End time: {datetime.datetime.fromtimestamp(end).strftime('%Y-%m-%d %H:%M:%S')}")
