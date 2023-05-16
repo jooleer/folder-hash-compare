@@ -166,7 +166,7 @@ def main():
     # process output information
     if total_time > 60:
         ct = seconds_to_minutes(total_time)
-        print(f"Process finished in {round(ct[0])} hours, {round(ct[1])} minutes, {round(ct[2])} seconds")
+        print(f"\nProcess finished in {round(ct[0])} hours, {round(ct[1])} minutes, {round(ct[2])} seconds")
         logging.info(f"End time: {datetime.datetime.fromtimestamp(end).strftime('%Y-%m-%d %H:%M:%S')}")
         logging.info(f"[INFO]: Process finished in {round(ct[0])} hours, {round(ct[1])} minutes, {round(ct[2])} seconds")
     else:
