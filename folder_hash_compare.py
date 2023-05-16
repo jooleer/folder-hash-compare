@@ -4,6 +4,7 @@ import hashlib
 import zlib
 import logging
 import time
+import datetime
 import argparse
 from multiprocessing.pool import ThreadPool
 
@@ -99,15 +100,15 @@ def main():
     files_completed = 0
     files_errors = 0
     files_missing_total = 0
+    start = time.time()
 
     if(not args.logging):
         if not os.path.isdir("logs"):
             os.makedirs("logs")
         log_name = str(time.time())
         logging.basicConfig(filename="logs/log_"+log_name+".txt", level=logging.INFO)
-        logging.info(f"[INFO]:[SETTINGS]: -p {args.primary} -s {args.secondary} -a {args.algorithm} -d {args.disable} -m {args.missing} -n {args.nmissing} -v {args.verbose} -l {args.logging} -c {args.custom}")
-
-    start = time.time()
+        logging.info(f"[SETTINGS]: -p {args.primary} -s {args.secondary} -a {args.algorithm} -d {args.disable} -m {args.missing} -n {args.nmissing} -v {args.verbose} -l {args.logging} -c {args.custom}")
+        logging.info(f"Starting time: {datetime.datetime.fromtimestamp(start).strftime('%Y-%m-%d %H:%M:%S')}")
 
     f1_amount = get_files_amount(primary_directory)
     f2_amount = get_files_amount(secondary_directory)
@@ -149,7 +150,7 @@ def main():
             if(args.verbose):
                 print(bcolors.FAIL + f"Hash values for {relative_path} do not match." + bcolors.ENDC)
             if(not args.logging):
-                logging.error(f"[ERROR]: FILE HASH MISMATCH FOR: {relative_path} ({folder1_hashes[relative_path]} <> {folder2_hashes[relative_path]})")
+                logging.error(f"FILE HASH MISMATCH FOR: {relative_path} ({folder1_hashes[relative_path]} <> {folder2_hashes[relative_path]})")
             files_errors += 1
         else:
             if(args.verbose):
@@ -166,13 +167,22 @@ def main():
     if total_time > 60:
         ct = seconds_to_minutes(total_time)
         print(f"Process finished in {round(ct[0])} hours, {round(ct[1])} minutes, {round(ct[2])} seconds")
+        logging.info(f"End time: {datetime.datetime.fromtimestamp(end).strftime('%Y-%m-%d %H:%M:%S')}")
+        logging.info(f"[INFO]: Process finished in {round(ct[0])} hours, {round(ct[1])} minutes, {round(ct[2])} seconds")
     else:
-        print("\nProcess finished in {:.2f}".format(round((total_time), 2)) + " seconds")
+        print(f"\nProcess finished in {round((total_time), 2)} seconds")
+        logging.info(f"End time: {datetime.datetime.fromtimestamp(end).strftime('%Y-%m-%d %H:%M:%S')}")
+        logging.info(f"Process finished in {round((total_time), 2)} seconds")
 
     print(f"Processed {files_amount} file(s): "
     + bcolors.OKGREEN + f"\n{files_completed} file(s) OK" + bcolors.ENDC
     + bcolors.FAIL + f"\n{files_errors} file(s) FAILED" + bcolors.ENDC
     + bcolors.WARNING + f"\n{files_missing_total} file(s) MISSING" + bcolors.ENDC)
+
+    logging.info(f"Processed {files_amount} file(s): ")
+    logging.info(f"{files_completed} file(s) OK")
+    logging.info(f"{files_errors} file(s) FAILED")
+    logging.info(f"{files_missing_total} file(s) MISSING")
 
 
 if __name__ == '__main__':
