@@ -4,7 +4,6 @@ import hashlib
 import zlib
 import logging
 import time
-import datetime
 import argparse
 from multiprocessing.pool import ThreadPool
 
@@ -67,7 +66,7 @@ def folder_generate_hashes(folder_path):
             if(args.verbose):
                 print(f"Generated hash for: {file_path} [{file_hash}]")
             if(not args.logging):
-                logging.info(f"[HASH]: {file_path} -> {file_hash}")
+                logging.info(f"[HASH] {file_path} -> {file_hash}")
     return folder_hashes
 
 # convert seconds to hours, minutes, seconds
@@ -85,7 +84,7 @@ def search_missing_files(directory, folder_hashes):
             if(args.verbose):
                 print(bcolors.WARNING + f"{relative_path} is missing from {directory}." + bcolors.ENDC)
             if(not args.logging):
-                logging.info(f"[WARNING - MISSING FILE]: {directory} -> {relative_path}")
+                logging.warning(f"[MISSING FILE] {directory} -> {relative_path}")
             files_missing += 1
     if files_missing > 0:
         print(bcolors.FAIL + f"{files_missing} files missing from directory: {directory} " + bcolors.ENDC)
@@ -106,14 +105,14 @@ def main():
         if not os.path.isdir("logs"):
             os.makedirs("logs")
         log_name = str(time.time())
-        logging.basicConfig(filename="logs/log_"+log_name+".txt", level=logging.INFO)
+        logging.basicConfig(filename="logs/log_"+log_name+".txt", level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s', datefmt='%H:%M:%S')
         print(f"Log file: logs/log_{log_name}.txt\n")
-        logging.info(f"[SETTINGS]: -p {args.primary} -s {args.secondary} -a {args.algorithm} -d {args.disable} -m {args.missing} -n {args.nmissing} -v {args.verbose} -l {args.logging} -c {args.custom}")
-        logging.info(f"Starting time: {datetime.datetime.fromtimestamp(start).strftime('%Y-%m-%d %H:%M:%S')}")
+        logging.info(f"[SETTINGS] -p {args.primary} -s {args.secondary} -a {args.algorithm} -d {args.disable} -m {args.missing} -n {args.nmissing} -v {args.verbose} -l {args.logging} -c {args.custom}\n")
 
     f1_amount = get_files_amount(primary_directory)
     f2_amount = get_files_amount(secondary_directory)
 
+    logging.info("Generating hashes..")
     # multithreading
     if(args.disable):
         # run without multithreading
@@ -139,25 +138,28 @@ def main():
 
     # check for missing files in primary directory
     if(args.nmissing):
+        logging.info(f"Searching for missing files in primary directory: {primary_directory}")
         files_missing_total += search_missing_files(primary_directory, folder2_hashes)
 
     # check for missing files in secondary directory
     if(args.missing):
+        logging.info(f"Searching for missing files in secondary directory: {secondary_directory}")
         files_missing_total += search_missing_files(secondary_directory, folder1_hashes)
 
     # compare the hash values for each file in both folders
+    logging.info(f"Comparing hash values..")
     for relative_path in set(folder1_hashes.keys()).intersection(set(folder2_hashes.keys())):
         if folder1_hashes[relative_path] != folder2_hashes[relative_path]:
             if(args.verbose):
                 print(bcolors.FAIL + f"Hash values for {relative_path} do not match." + bcolors.ENDC)
             if(not args.logging):
-                logging.error(f"FILE HASH MISMATCH FOR: {relative_path} ({folder1_hashes[relative_path]} <> {folder2_hashes[relative_path]})")
+                logging.error(f"[HASH MISMATCH] {secondary_directory} -> {relative_path} ({folder1_hashes[relative_path]} <> {folder2_hashes[relative_path]})")
             files_errors += 1
         else:
             if(args.verbose):
                 print(bcolors.OKGREEN + f"Hash values for {relative_path} match." + bcolors.ENDC)
             if(not args.logging):
-                logging.info(f"[HASH OK]: {relative_path}")
+                logging.info(f"[HASH OK] {relative_path}")
             files_completed += 1
 
     end = time.time()
@@ -168,11 +170,9 @@ def main():
     if total_time > 60:
         ct = seconds_to_minutes(total_time)
         print(f"\nProcess finished in {round(ct[0])} hours, {round(ct[1])} minutes, {round(ct[2])} seconds")
-        logging.info(f"End time: {datetime.datetime.fromtimestamp(end).strftime('%Y-%m-%d %H:%M:%S')}")
         logging.info(f"Process finished in {round(ct[0])} hours, {round(ct[1])} minutes, {round(ct[2])} seconds")
     else:
         print(f"\nProcess finished in {round((total_time), 2)} seconds")
-        logging.info(f"End time: {datetime.datetime.fromtimestamp(end).strftime('%Y-%m-%d %H:%M:%S')}")
         logging.info(f"Process finished in {round((total_time), 2)} seconds")
 
     print(f"Processed {files_amount} file(s): "
@@ -201,7 +201,6 @@ if __name__ == '__main__':
     parser.add_argument('-v', '--verbose', action='store_true', help='Enables verbose logging')
     parser.add_argument('-l', '--logging', action='store_true', help='Disables logging to txt file in logs/ folder')
     parser.add_argument('-c', '--custom', action='store_true', help='Use custom/hardcoded variables in stead of -p -s command-line arguments')
-
     args = parser.parse_args()
 
     # define the paths of the two directories to compare
