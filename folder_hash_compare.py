@@ -107,7 +107,8 @@ def main():
         log_name = str(time.time())
         logging.basicConfig(filename="logs/log_"+log_name+".txt", level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s', datefmt='%H:%M:%S')
         print(f"Log file: logs/log_{log_name}.txt\n")
-        logging.info(f"[SETTINGS] -p {args.primary} -s {args.secondary} -a {args.algorithm} -d {args.disable} -m {args.missing} -n {args.nmissing} -v {args.verbose} -l {args.logging} -c {args.custom}\n")
+        logging.info(f"[SETTINGS] -p {args.primary} -s {args.secondary} -a {args.algorithm} -d {args.disable} -m {args.missing} -n {args.nmissing} -v {args.verbose} -l {not args.logging} -c {args.custom}")
+        logging.info(f"Comparing {primary_directory} against {secondary_directory}\n")
 
     f1_amount = get_files_amount(primary_directory)
     f2_amount = get_files_amount(secondary_directory)
@@ -180,10 +181,11 @@ def main():
     + bcolors.FAIL + f"\n{files_errors} file(s) FAILED" + bcolors.ENDC
     + bcolors.WARNING + f"\n{files_missing_total} file(s) MISSING" + bcolors.ENDC)
 
-    logging.info(f"Processed {files_amount} file(s): ")
-    logging.info(f"{files_completed} file(s) OK")
-    logging.info(f"{files_errors} file(s) FAILED")
-    logging.info(f"{files_missing_total} file(s) MISSING")
+    if(not args.logging):
+        logging.info(f"Processed {files_amount} file(s): ")
+        logging.info(f"{files_completed} file(s) OK")
+        logging.info(f"{files_errors} file(s) FAILED")
+        logging.info(f"{files_missing_total} file(s) MISSING")
 
 
 if __name__ == '__main__':
@@ -215,7 +217,6 @@ if __name__ == '__main__':
     
     if(args.verbose):
         print(f"Comparing:\n{primary_directory}\nagainst:\n{secondary_directory}\n")
-        logging.info(f"Comparing: {primary_directory} against: {secondary_directory}")
 
     # hash algorithm (CRC32, MD5, SHA256)
     if(not args.algorithm):
