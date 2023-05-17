@@ -112,17 +112,17 @@ def main():
     f1_amount = get_files_amount(primary_directory)
     f2_amount = get_files_amount(secondary_directory)
 
-    logging.info("Generating hashes..")
     # multithreading
+    logging.info("Generating hashes..")
+    # run without multithreading
     if(args.disable):
-        # run without multithreading
         if(args.verbose):
             print(bcolors.UNDERLINE + "Running jobs without multithreading" + bcolors.ENDC)
         folder1_hashes = folder_generate_hashes(primary_directory)
         folder2_hashes = folder_generate_hashes(secondary_directory)
 
+    # run with multithreading
     else:
-        # use multithreading
         if(args.verbose):
             print(bcolors.UNDERLINE + "Running jobs with multithreading" + bcolors.ENDC)
 
