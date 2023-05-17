@@ -215,6 +215,7 @@ if __name__ == '__main__':
     
     if(args.verbose):
         print(f"Comparing:\n{primary_directory}\nagainst:\n{secondary_directory}\n")
+        logging.info(f"Comparing: {primary_directory} against: {secondary_directory}")
 
     # hash algorithm (CRC32, MD5, SHA256)
     if(not args.algorithm):
