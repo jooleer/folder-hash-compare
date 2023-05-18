@@ -59,8 +59,8 @@ def folder_generate_hashes(folder_path):
             file_hash = generate_file_hash(file_path, hash_algorithm)
         else:
             file_hash = generate_file_hash(file_path, "CRC32")
-        relative_path = os.path.relpath(file_path, folder_path)
-        folder_hashes[relative_path] = file_hash
+        relative_file_path = os.path.relpath(file_path, folder_path)
+        folder_hashes[relative_file_path] = file_hash
         # in case program is not run directly
         if __name__ == '__main__':
             if(args.verbose):
@@ -79,12 +79,12 @@ def seconds_to_minutes(seconds):
 def search_missing_files(directory, folder_hashes):
     files_missing = 0
     for file_path in get_all_files(directory):
-        relative_path = os.path.relpath(file_path, directory)
-        if relative_path not in folder_hashes:
+        relative_file_path = os.path.relpath(file_path, directory)
+        if relative_file_path not in folder_hashes:
             if(args.verbose):
-                print(bcolors.WARNING + f"{relative_path} is missing from {directory}." + bcolors.ENDC)
+                print(bcolors.WARNING + f"Missing file: {directory} -> {relative_file_path}" + bcolors.ENDC)
             if(not args.logging):
-                logging.warning(f"[MISSING FILE] {directory} -> {relative_path}")
+                logging.warning(f"[MISSING FILE] {directory} -> {relative_file_path}")
             files_missing += 1
     if files_missing > 0:
         print(bcolors.FAIL + f"{files_missing} files missing from directory: {directory} " + bcolors.ENDC)
@@ -110,8 +110,8 @@ def main():
         logging.info(f"[SETTINGS] -p {args.primary} -s {args.secondary} -a {args.algorithm} -d {args.disable} -m {args.missing} -n {args.nmissing} -v {args.verbose} -l {not args.logging} -c {args.custom}")
         logging.info(f"Comparing {primary_directory} against {secondary_directory}\n")
 
-    f1_amount = get_files_amount(primary_directory)
-    f2_amount = get_files_amount(secondary_directory)
+    primary_files_amount = get_files_amount(primary_directory)
+    secondary_files_amount = get_files_amount(secondary_directory)
 
     # multithreading
     logging.info("Generating hashes..")
@@ -149,23 +149,23 @@ def main():
 
     # compare the hash values for each file in both folders
     logging.info(f"Comparing hash values..")
-    for relative_path in set(folder1_hashes.keys()).intersection(set(folder2_hashes.keys())):
-        if folder1_hashes[relative_path] != folder2_hashes[relative_path]:
+    for relative_file_path in set(folder1_hashes.keys()).intersection(set(folder2_hashes.keys())):
+        if folder1_hashes[relative_file_path] != folder2_hashes[relative_file_path]:
             if(args.verbose):
-                print(bcolors.FAIL + f"Hash values for {relative_path} do not match." + bcolors.ENDC)
+                print(bcolors.FAIL + f"Hash values for {relative_file_path} do not match." + bcolors.ENDC)
             if(not args.logging):
-                logging.error(f"[HASH MISMATCH] {secondary_directory} -> {relative_path} ({folder1_hashes[relative_path]} <> {folder2_hashes[relative_path]})")
+                logging.error(f"[HASH MISMATCH] {secondary_directory} -> {relative_file_path} ({folder1_hashes[relative_file_path]} <> {folder2_hashes[relative_file_path]})")
             files_errors += 1
         else:
             if(args.verbose):
-                print(bcolors.OKGREEN + f"Hash values for {relative_path} match." + bcolors.ENDC)
+                print(bcolors.OKGREEN + f"Hash values for {relative_file_path} match." + bcolors.ENDC)
             if(not args.logging):
-                logging.info(f"[HASH OK] {relative_path}")
+                logging.info(f"[HASH OK] {relative_file_path}")
             files_completed += 1
 
     end = time.time()
     total_time = end - start
-    files_amount = f1_amount + f2_amount
+    files_amount = primary_files_amount + secondary_files_amount
 
     # process output information
     if total_time > 60:
