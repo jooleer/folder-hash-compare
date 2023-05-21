@@ -29,7 +29,6 @@ def generate_file_hash(file_path, hash_algorithm="CRC32"):
             file_hash = hashlib.md5(file_data).hexdigest()
         elif hash_algorithm == "SHA256":
             file_hash = hashlib.sha256(file_data).hexdigest()
-
         return file_hash
 
 # get a list of all files in a folder and its subfolders
@@ -54,6 +53,7 @@ def get_files_amount(folder_path):
 def folder_generate_hashes(folder_path):
     folder_hashes = {}
     for file_path in get_all_files(folder_path):
+
         # in case program is not run directly
         if __name__ == '__main__':
             file_hash = generate_file_hash(file_path, hash_algorithm)
@@ -61,6 +61,7 @@ def folder_generate_hashes(folder_path):
             file_hash = generate_file_hash(file_path, "CRC32")
         relative_file_path = os.path.relpath(file_path, folder_path)
         folder_hashes[relative_file_path] = file_hash
+
         # in case program is not run directly
         if __name__ == '__main__':
             if(args.verbose):
@@ -74,7 +75,6 @@ def seconds_to_minutes(seconds):
     minutes, seconds = divmod(seconds, 60)
     hours, minutes = divmod(minutes, 60)
     return hours, minutes, seconds
-
 
 def search_missing_files(directory, folder_hashes):
     files_missing = 0
@@ -93,7 +93,6 @@ def search_missing_files(directory, folder_hashes):
     else:
         print(bcolors.OKGREEN + f"No files missing from directory: {directory}" + bcolors.ENDC)
     return files_missing
-
 
 def main():
     files_completed = 0
@@ -186,7 +185,6 @@ def main():
         logging.info(f"{files_completed} file(s) OK")
         logging.info(f"{files_errors} file(s) FAILED")
         logging.info(f"{files_missing_total} file(s) MISSING")
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
