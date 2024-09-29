@@ -19,7 +19,7 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
-#generate hash value of file
+# generate hash value of file
 def generate_file_hash(file_path, hash_algorithm="CRC32"):
     with open(file_path, "rb") as f:
         file_data = f.read()
